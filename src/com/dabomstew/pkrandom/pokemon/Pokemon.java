@@ -27,16 +27,24 @@ package com.dabomstew.pkrandom.pokemon;
 
 import com.dabomstew.pkrandom.constants.Species;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
 
 public class Pokemon implements Comparable<Pokemon> {
 
     public String name;
     public int number;
+
+    public enum EncounterTag {
+        LAND,
+        WATER,
+        FISHING,
+        CAVE,
+        RARE,
+        LEGENDARY
+    }
+
+    public EnumSet<EncounterTag> encounterTags = EnumSet.noneOf(EncounterTag.class);
 
     public String formeSuffix = "";
     public Pokemon baseForme = null;

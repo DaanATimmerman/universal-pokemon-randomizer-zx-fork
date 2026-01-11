@@ -995,6 +995,57 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
         }
     }
 
+    private boolean isLegendaryLike(Pokemon p) {
+        int bst =
+                p.hp +
+                        p.attack +
+                        p.defense +
+                        p.spatk +
+                        p.spdef +
+                        p.speed;
+
+        // Typical Gen 4 thresholds:
+        // 600+ = box / major legendary
+        // 580+ = mythicals / minor legends
+        return bst >= 580;
+    }
+
+    private void assignEncounterTags(Pokemon[] pokes) {
+        for (Pokemon p : pokes) {
+            if (p == null) continue;
+
+            // Legendary
+            if (isLegendaryLike(p)) {
+                p.encounterTags.add(Pokemon.EncounterTag.LEGENDARY);
+                p.encounterTags.add(Pokemon.EncounterTag.RARE);
+            }
+
+            // Water logic
+            if (p.primaryType == Type.WATER || p.secondaryType == Type.WATER || p.primaryType == Type.FLYING || p.secondaryType == Type.FLYING) {
+                p.encounterTags.add(Pokemon.EncounterTag.WATER);
+            }
+
+            // Fishing logic
+            if (p.primaryType == Type.WATER || p.secondaryType == Type.WATER) {
+                p.encounterTags.add(Pokemon.EncounterTag.FISHING);
+            }
+
+            // Cave logic
+            if (p.primaryType == Type.ROCK
+                    || p.primaryType == Type.GROUND
+                    || p.primaryType == Type.DARK
+                    || p.primaryType == Type.STEEL) {
+                p.encounterTags.add(Pokemon.EncounterTag.CAVE);
+            }
+
+            // Default land fallback
+            if (p.encounterTags.isEmpty() || p.primaryType == Type.FLYING || p.secondaryType == Type.FLYING) {
+                p.encounterTags.add(Pokemon.EncounterTag.LAND);
+            }
+        }
+    }
+
+
     private void loadPokemonStats() {
         try {
             String pstatsnarc = romEntry.getFile("PokemonStats");
@@ -1026,10 +1077,10 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
             }
 
             populateEvolutions();
+            assignEncounterTags(pokes);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
-
     }
 
     private void loadBasicPokeStats(Pokemon pkmn, byte[] stats) {
